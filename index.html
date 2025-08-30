@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Recompensas DreamLAB</title>
+    <title>Generador de Recompensas DreamLAB v2.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/tone@14.7.58/build/Tone.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -21,232 +21,54 @@
             overflow-x: hidden;
             position: relative;
         }
-
-        .star-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-        }
-
-        .star-bg > div {
-            background-color: #ffd700;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            position: absolute;
-            opacity: 0.8;
-            animation: float 20s infinite ease-in-out;
-            box-shadow: 0 0 5px #ffd700, 0 0 10px #ffea00;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(100vh) translateX(50vw); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateY(-100vh) translateX(-50vw); opacity: 0; }
-        }
-
-        .kirby-card {
-            border-radius: 1.5rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            transition: transform 0.2s ease-in-out;
-            border: 2px solid;
-            box-shadow: 0 8px 10px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-        }
-        .ticket-bg {
-            background-color: #ffedd5;
-            border-color: #fdba74;
-            background-image: linear-gradient(135deg, transparent 10px, #ffedd5 10px), linear-gradient(45deg, transparent 10px, #ffedd5 10px);
-            background-size: 20px 20px;
-        }
-        .badge-bg {
-            background-color: #e0f2fe;
-            border-color: #93c5fd;
-            background-image: linear-gradient(135deg, transparent 50%, rgba(255, 255, 255, 0.1) 50%);
-            background-size: 10px 10px;
-        }
-        .kirby-input {
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 0.75rem;
-            border: 1px solid #d1d5db;
-            background-color: #fff;
-            margin-top: 0.5rem;
-            transition: all 0.2s ease-in-out;
-        }
-        .kirby-input:focus {
-            outline: none;
-            border-color: #ec4899;
-            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.5);
-        }
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 9999px;
-            font-weight: 600;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 4px 0px #be185d;
-        }
-        .btn-primary {
-            background-color: #ec4899;
-            color: white;
-            border: none;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0px #be185d;
-        }
-        .ticket-display {
-            display: none;
-            position: relative;
-        }
-        .ticket-display.active {
-            display: block;
-        }
-        .message-bubble {
-            background-color: #fff;
-            color: #be185d;
-            border-radius: 1.5rem;
-            padding: 1rem;
-            font-style: italic;
-            font-weight: 600;
-            text-align: center;
-            margin-top: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-        }
-        .star-icon {
-            font-size: 3rem;
-            display: inline-block;
-            filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.2));
-            animation: pulse 1.5s infinite;
-        }
-        .badge-icon {
-            font-size: 3rem;
-            display: inline-block;
-            filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.2));
-        }
-        .converter-bg {
-            background-color: #ffe4e6;
-            border-color: #fca5a5;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-            backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            background-color: #fff;
-            margin: 15% auto;
-            padding: 2rem;
-            border-radius: 1.5rem;
-            width: 80%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        .tab-btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 9999px;
-            font-weight: 600;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 4px 0px #be185d;
-            background-color: #ec4899;
-            color: white;
-            border: none;
-            margin: 0.5rem;
-        }
-        .tab-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 6px 0px #be185d;
-        }
-        .tab-btn.active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0px #be185d;
-        }
-        .tab-content {
-            display: none;
-            position: relative;
-            top: -2px;
-            z-index: 1;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .title-outline {
-            text-shadow: 
-                -1.5px -1.5px 0 #fff,
-                1.5px -1.5px 0 #fff,
-                -1.5px 1.5px 0 #fff,
-                1.5px 1.5px 0 #fff;
-        }
-        .glowing-effect {
-            animation: glowing 2s infinite;
-        }
-        .ticket-bg.glowing-effect {
-            box-shadow: 0 0 10px #fdba74, 0 0 20px #fdba74, 0 8px 10px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-        }
-        .badge-bg.glowing-effect {
-            box-shadow: 0 0 10px #93c5fd, 0 0 20px #93c5fd, 0 8px 10px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-        }
-        .converter-bg.glowing-effect {
-            box-shadow: 0 0 10px #fca5a5, 0 0 20px #fca5a5, 0 8px 10px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        @keyframes glowing {
-            0% { box-shadow: 0 0 5px rgba(0,0,0,0.1); }
-            50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
-            100% { box-shadow: 0 0 5px rgba(0,0,0,0.1); }
-        }
-        .footer-stripe {
-            background-color: #fce7f3;
-            border-top: 4px solid #f472b6;
-            padding: 1rem 0;
-            margin-top: 2rem;
-        }
-        .kirby-svg-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
-            z-index: 100;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-            pointer-events: none;
-        }
-        .kirby-svg-container.show {
-            opacity: 1;
-        }
-        .email-feedback {
-            display: none;
-            text-align: center;
-            color: #be185d;
-            font-weight: 600;
-            margin-top: 1rem;
-            font-size: 0.875rem;
-            animation: fadeIn 0.5s ease-out;
-        }
-        .email-feedback.show {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        .star-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+        .star-bg > div { background-color: #ffd700; width: 10px; height: 10px; border-radius: 50%; position: absolute; opacity: 0.8; animation: float 20s infinite ease-in-out; box-shadow: 0 0 5px #ffd700, 0 0 10px #ffea00; }
+        @keyframes float { 0% { transform: translateY(100vh) translateX(50vw); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-100vh) translateX(-50vw); opacity: 0; } }
+        .kirby-card { border-radius: 1.5rem; padding: 1.5rem; margin-bottom: 1.5rem; transition: transform 0.2s ease-in-out; border: 2px solid; box-shadow: 0 8px 10px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05); }
+        .ticket-bg { background-color: #ffedd5; border-color: #fdba74; }
+        .badge-bg { background-color: #e0f2fe; border-color: #93c5fd; }
+        .converter-bg { background-color: #ffe4e6; border-color: #fca5a5; }
+        .history-bg { background-color: #f3e8ff; border-color: #c084fc; }
+        .kirby-input { width: 100%; padding: 0.75rem; border-radius: 0.75rem; border: 1px solid #d1d5db; background-color: #fff; margin-top: 0.5rem; transition: all 0.2s ease-in-out; }
+        .kirby-input:focus { outline: none; border-color: #ec4899; box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.5); }
+        .btn { padding: 0.75rem 1.5rem; border-radius: 9999px; font-weight: 600; transition: all 0.2s ease-in-out; box-shadow: 0 4px 0px #be185d; }
+        .btn-primary { background-color: #ec4899; color: white; border: none; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 0px #be185d; }
+        .btn-secondary { background-color: #a855f7; color: white; border: none; box-shadow: 0 4px 0px #7e22ce; }
+        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 6px 0px #7e22ce; }
+        .btn-danger { background-color: #ef4444; color: white; border: none; box-shadow: 0 4px 0px #b91c1c; }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 6px 0px #b91c1c; }
+        .ticket-display { display: none; position: relative; }
+        .ticket-display.active { display: block; }
+        .message-bubble { background-color: #fff; color: #be185d; border-radius: 1.5rem; padding: 1rem; font-style: italic; font-weight: 600; text-align: center; margin-top: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); }
+        .star-icon, .badge-icon { font-size: 3rem; display: inline-block; filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.2)); }
+        .star-icon { animation: pulse 1.5s infinite; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); backdrop-filter: blur(5px); }
+        .modal-content { background-color: #fff; margin: 15% auto; padding: 2rem; border-radius: 1.5rem; width: 80%; max-width: 400px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .tab-btn { padding: 0.75rem 1.5rem; border-radius: 9999px; font-weight: 600; transition: all 0.2s ease-in-out; box-shadow: 0 4px 0px #be185d; background-color: #ec4899; color: white; border: none; margin: 0.5rem; }
+        .tab-btn:hover { transform: translateY(-2px); box-shadow: 6px 0px #be185d; }
+        .tab-btn.active { transform: translateY(2px); box-shadow: 0 2px 0px #be185d; }
+        .tab-content { display: none; position: relative; top: -2px; z-index: 1; }
+        .tab-content.active { display: block; }
+        .title-outline { text-shadow: -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff, 1.5px 1.5px 0 #fff; }
+        .glowing-effect { animation: glowing 2s infinite; }
+        .ticket-bg.glowing-effect { box-shadow: 0 0 10px #fdba74, 0 0 20px #fdba74, 0 8px 10px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05); }
+        .badge-bg.glowing-effect { box-shadow: 0 0 10px #93c5fd, 0 0 20px #93c5fd, 0 8px 10px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05); }
+        .converter-bg.glowing-effect { box-shadow: 0 0 10px #fca5a5, 0 0 20px #fca5a5, 0 8px 10px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05); }
+        .history-bg.glowing-effect { box-shadow: 0 0 10px #c084fc, 0 0 20px #c084fc, 0 8px 10px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05); }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes glowing { 0% { box-shadow: 0 0 5px rgba(0,0,0,0.1); } 50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); } 100% { box-shadow: 0 0 5px rgba(0,0,0,0.1); } }
+        .footer-stripe { background-color: #fce7f3; border-top: 4px solid #f472b6; padding: 1rem 0; margin-top: 2rem; }
+        .kirby-svg-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; z-index: 100; opacity: 0; transition: opacity 0.5s ease-in-out; pointer-events: none; }
+        .kirby-svg-container.show { opacity: 1; }
+        .email-feedback { display: none; text-align: center; color: #be185d; font-weight: 600; margin-top: 1rem; font-size: 0.875rem; animation: fadeIn 0.5s ease-out; }
+        .email-feedback.show { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        #history-table-container { max-height: 400px; overflow-y: auto; border: 1px solid #d1d5db; border-radius: 0.75rem; }
+        #history-table { width: 100%; border-collapse: collapse; }
+        #history-table th, #history-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        #history-table th { background-color: #faf5ff; color: #6b21a8; position: sticky; top: 0; }
+        #history-table tr:last-child td { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -260,16 +82,14 @@
         </header>
 
         <main>
-            <!-- Navigation for tabs -->
-            <nav class="flex justify-center mb-6">
+            <nav class="flex justify-center mb-6 flex-wrap">
                 <button class="tab-btn active" data-tab="estrellas">Estrellas de crédito</button>
                 <button class="tab-btn" data-tab="insignias">Insignias de Tesoros</button>
                 <button class="tab-btn" data-tab="convertidor">Convertidor EC ⭐ a PC ❤️</button>
+                <button class="tab-btn" data-tab="historial">Historial 📜</button>
             </nav>
 
-            <!-- Tab content containers -->
             <div id="estrellas" class="tab-content active">
-                <!-- Formulario de Estrellas de Crédito -->
                 <section class="kirby-card ticket-bg glowing-effect">
                     <h2 class="text-2xl font-bold text-pink-600 mb-4 title-outline">Generar Ticket de Estrellas de Créditos ⭐</h2>
                     <div class="space-y-4">
@@ -291,7 +111,6 @@
                     </div>
                 </section>
                 
-                <!-- Visualización del Ticket de Estrellas de Crédito -->
                 <div id="ec-ticket-display" class="ticket-display kirby-card ticket-bg">
                     <div class="text-center">
                         <div class="star-icon">⭐</div>
@@ -306,15 +125,9 @@
                     </div>
                     <div class="message-bubble" id="ticket-message"></div>
                     <div class="mt-4 space-y-2">
-                        <div>
-                            <label for="ec-email-input" class="block text-sm font-medium text-slate-700 text-left">Correo del alumno</label>
-                            <input type="email" id="ec-email-input" class="kirby-input" placeholder="ejemplo@correo.com">
-                        </div>
                         <div class="flex justify-center space-x-4">
-                            <!-- Botón para descargar -->
                             <button id="download-ec-pdf-btn" class="btn btn-primary">Descargar PDF</button>
-                            <!-- Botón para enviar por correo -->
-                            <button id="send-ec-email-btn" class="btn btn-primary">Enviar por Correo</button>
+                            <button id="send-ec-email-btn" class="btn btn-primary">Guión para correo</button>
                         </div>
                         <div id="ec-email-feedback" class="email-feedback"></div>
                     </div>
@@ -322,7 +135,6 @@
             </div>
 
             <div id="insignias" class="tab-content">
-                <!-- Formulario de Insignias -->
                 <section class="kirby-card badge-bg glowing-effect">
                     <h2 class="text-2xl font-bold text-pink-600 mb-4 title-outline">Generar Insignia de Tesoro ✨</h2>
                     <div class="space-y-4">
@@ -346,7 +158,6 @@
                     </div>
                 </section>
 
-                <!-- Visualización de la Insignia -->
                 <div id="badge-display" class="ticket-display kirby-card badge-bg">
                     <div class="text-center">
                         <div class="badge-icon" id="badge-symbol"></div>
@@ -360,15 +171,9 @@
                     </div>
                     <div class="message-bubble" id="badge-message"></div>
                     <div class="mt-4 space-y-2">
-                        <div>
-                            <label for="badge-email-input" class="block text-sm font-medium text-slate-700 text-left">Correo del alumno</label>
-                            <input type="email" id="badge-email-input" class="kirby-input" placeholder="ejemplo@correo.com">
-                        </div>
                         <div class="flex justify-center space-x-4">
-                             <!-- Botón para descargar -->
                             <button id="download-badge-pdf-btn" class="btn btn-primary">Descargar PDF</button>
-                            <!-- Botón para enviar por correo -->
-                            <button id="send-badge-email-btn" class="btn btn-primary">Enviar por Correo</button>
+                            <button id="send-badge-email-btn" class="btn btn-primary">Guión para correo</button>
                         </div>
                         <div id="badge-email-feedback" class="email-feedback"></div>
                     </div>
@@ -376,7 +181,6 @@
             </div>
 
             <div id="convertidor" class="tab-content">
-                <!-- Convertidor de Estrellas de Créditos a Puntos Corazón -->
                 <section class="kirby-card converter-bg glowing-effect">
                     <h2 class="text-2xl font-bold text-pink-600 mb-4 title-outline">Convertir Estrellas a Puntos Corazón ❤️</h2>
                     <p class="text-sm text-slate-600 mb-4">Equivalencia: 100 Estrellas de Créditos = 5 Puntos Corazón. La conversión no es parcial.</p>
@@ -397,9 +201,34 @@
                     <div id="leftover-ticket-container" class="mt-4"></div>
                 </section>
             </div>
+
+            <div id="historial" class="tab-content">
+                <section class="kirby-card history-bg glowing-effect">
+                    <h2 class="text-2xl font-bold text-purple-600 mb-4 title-outline">Historial de Recompensas 📜</h2>
+                    <div id="history-table-container">
+                        <table id="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Alumno(s)</th>
+                                    <th>Detalles</th>
+                                    <th>Folio</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                    <div id="history-empty-state" class="text-center text-slate-500 py-8 hidden">No hay registros en el historial. ¡Genera un ticket o insignia para empezar!</div>
+                    <div class="mt-6 flex justify-center space-x-4">
+                        <button id="download-history-pdf-btn" class="btn btn-secondary">Descargar Reporte PDF</button>
+                        <button id="clear-history-btn" class="btn btn-danger">Limpiar Historial</button>
+                    </div>
+                </section>
+            </div>
         </main>
 
-        <!-- Modal de Contraseña -->
         <div id="password-modal" class="modal">
             <div class="modal-content">
                 <h3 class="text-xl font-bold text-slate-800 mb-4">Ingresa la Contraseña</h3>
@@ -411,7 +240,6 @@
             </div>
         </div>
 
-        <!-- Kirby SVG -->
         <div id="kirby-svg-container" class="kirby-svg-container">
             <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="50" cy="50" r="40" fill="#E66A8E" stroke="#C45A79" stroke-width="4"/>
@@ -425,7 +253,6 @@
             </svg>
         </div>
 
-        <!-- Footer -->
         <footer id="main-footer" class="footer-stripe text-center text-slate-500 text-sm">
             <p>© 2025 | Adriana A. Barrios Rodríguez | Todos los derechos reservados.</p>
         </footer>
@@ -434,61 +261,16 @@
     <script>
         // Data para el generador
         const treasures = {
-            innovacion: {
-                symbol: '⚙️',
-                title: 'Tesoro de Innovación',
-                ec: '50 Estrellas de Créditos',
-                messages: [
-                    "Tu ingenio ha forjado un nuevo sendero en el camino del bio-héroe. ¡Adelante!",
-                    "¡Innovación es la clave! Cada nueva idea te acerca a la victoria, bio-héroe.",
-                    "El mundo necesita nuevas soluciones. Tu creatividad es un tesoro incalculable."
-                ]
-            },
-            iniciativa: {
-                symbol: '🤝',
-                title: 'Tesoro de Iniciativa y Compromiso Social',
-                ec: '40 Estrellas de Créditos',
-                messages: [
-                    "Cada bio-héroe construye su leyenda ayudando a su comunidad. ¡Qué gran paso!",
-                    "Has tomado la iniciativa para hacer del mundo un lugar mejor. ¡Felicidades, bio-héroe!",
-                    "Tu compromiso inspira a todos a tu alrededor. La verdadera fuerza está en la acción."
-                ]
-            },
-            exploracion: {
-                symbol: '🔍',
-                title: 'Tesoro de Exploración',
-                ec: '25 Estrellas de Créditos',
-                messages: [
-                    "El verdadero bio-héroe explora lo desconocido. ¡Tu valentía abre nuevos mundos!",
-                    "Has descubierto un tesoro de conocimiento. ¡Sigue explorando, valiente bio-héroe!",
-                    "Tu curiosidad te ha llevado a lugares inexplorados. ¡El universo del saber te espera!"
-                ]
-            },
-            conexion: {
-                symbol: '🔗',
-                title: 'Tesoro de Conexión Humana',
-                ec: '75 Estrellas de Créditos',
-                messages: [
-                    "El poder más grande reside en la conexión con otros. ¡Juntos, el camino del bio-héroe es invencible!",
-                    "Has tejido un lazo inquebrantable. La amistad es el más grande de los tesoros.",
-                    "La colaboración es la clave para grandes victorias. ¡Gracias por unir a tu equipo!"
-                ]
-            }
+            innovacion: { symbol: '⚙️', title: 'Tesoro de Innovación', ec: '50 Estrellas de Créditos', messages: ["Tu ingenio ha forjado un nuevo sendero en el camino del bio-héroe. ¡Adelante!", "¡Innovación es la clave! Cada nueva idea te acerca a la victoria, bio-héroe.", "El mundo necesita nuevas soluciones. Tu creatividad es un tesoro incalculable."] },
+            iniciativa: { symbol: '🤝', title: 'Tesoro de Iniciativa y Compromiso Social', ec: '40 Estrellas de Créditos', messages: ["Cada bio-héroe construye su leyenda ayudando a su comunidad. ¡Qué gran paso!", "Has tomado la iniciativa para hacer del mundo un lugar mejor. ¡Felicidades, bio-héroe!", "Tu compromiso inspira a todos a tu alrededor. La verdadera fuerza está en la acción."] },
+            exploracion: { symbol: '🔍', title: 'Tesoro de Exploración', ec: '25 Estrellas de Créditos', messages: ["El verdadero bio-héroe explora lo desconocido. ¡Tu valentía abre nuevos mundos!", "Has descubierto un tesoro de conocimiento. ¡Sigue explorando, valiente bio-héroe!", "Tu curiosidad te ha llevado a lugares inexplorados. ¡El universo del saber te espera!"] },
+            conexion: { symbol: '🔗', title: 'Tesoro de Conexión Humana', ec: '75 Estrellas de Créditos', messages: ["El poder más grande reside en la conexión con otros. ¡Juntos, el camino del bio-héroe es invencible!", "Has tejido un lazo inquebrantable. La amistad es el más grande de los tesoros.", "La colaboración es la clave para grandes victorias. ¡Gracias por unir a tu equipo!"] }
         };
+        const congratulatoryMessages = ["¡Sigue así, Bio-Héroe! Tu esfuerzo es la clave para la victoria.", "¡Increíble! Cada estrella te acerca más a la gloria. ¡Felicidades, bio-héroe!", "El camino del bio-héroe está hecho de constancia. ¡Gran trabajo!", "¡Tu valentía ha sido recompensada! Sigue luchando por el conocimiento."];
 
-        const congratulatoryMessages = [
-            "¡Sigue así, Bio-Héroe! Tu esfuerzo es la clave para la victoria.",
-            "¡Increíble! Cada estrella te acerca más a la gloria. ¡Felicidades, bio-héroe!",
-            "El camino del bio-héroe está hecho de constancia. ¡Gran trabajo!",
-            "¡Tu valentía ha sido recompensada! Sigue luchando por el conocimiento."
-        ];
-
-        // Constantes del DOM
+        // Constantes del DOM y de estado
         const tabButtons = document.querySelectorAll('.tab-btn');
         const tabContents = document.querySelectorAll('.tab-content');
-        const ecButton = document.getElementById('generate-ec-btn');
-        const badgeButton = document.getElementById('generate-badge-btn');
-        const convertButton = document.getElementById('convert-btn');
         const passwordModal = document.getElementById('password-modal');
         const passwordInput = document.getElementById('password-input');
         const passwordError = document.getElementById('password-error');
@@ -497,97 +279,151 @@
         const leftoverTicketContainer = document.getElementById('leftover-ticket-container');
 
         const CORRECT_PASSWORD = '100888';
+        const HISTORY_KEY = 'dreamlab_history';
         let currentCallback = null;
         let synthesizer = new Tone.PolySynth(Tone.Synth).toDestination();
+        let history = [];
 
-        // Inicializar estrellas de fondo
-        for (let i = 0; i < 30; i++) {
-            const star = document.createElement('div');
-            star.style.left = `${Math.random() * 100}vw`;
-            star.style.top = `${Math.random() * 100}vh`;
-            star.style.animationDelay = `${Math.random() * 20}s`;
-            star.style.animationDuration = `${10 + Math.random() * 20}s`;
-            document.querySelector('.star-bg').appendChild(star);
-        }
-
-        // Función para tocar un sonido de clic
-        function playClickSound() {
-            if (Tone.context.state !== 'running') {
-                Tone.context.resume();
+        // --- INICIALIZACIÓN ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeHistory();
+            initializeBackgroundStars();
+            setupEventListeners();
+        });
+        
+        function initializeBackgroundStars() {
+            const starBg = document.querySelector('.star-bg');
+            for (let i = 0; i < 30; i++) {
+                const star = document.createElement('div');
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.top = `${Math.random() * 100}vh`;
+                star.style.animationDelay = `${Math.random() * 20}s`;
+                star.style.animationDuration = `${10 + Math.random() * 20}s`;
+                starBg.appendChild(star);
             }
-            synthesizer.triggerAttackRelease(['C5', 'G5'], '8n');
         }
 
-        // Función para tocar un sonido de recompensa
-        function playRewardSound() {
-            if (Tone.context.state !== 'running') {
-                Tone.context.resume();
+        function setupEventListeners() {
+            tabButtons.forEach(button => button.addEventListener('click', () => { playClickSound(); switchTab(button.dataset.tab); }));
+            document.getElementById('generate-ec-btn').addEventListener('click', () => showPasswordModal(generateTicket));
+            document.getElementById('generate-badge-btn').addEventListener('click', () => showPasswordModal(generateBadge));
+            document.getElementById('convert-btn').addEventListener('click', () => showPasswordModal(convertStars));
+            document.getElementById('download-history-pdf-btn').addEventListener('click', generateHistoryPDF);
+            document.getElementById('clear-history-btn').addEventListener('click', () => showPasswordModal(clearHistory));
+            submitPasswordBtn.addEventListener('click', () => {
+                playClickSound();
+                if (passwordInput.value === CORRECT_PASSWORD) {
+                    hidePasswordModal();
+                    if (currentCallback) currentCallback();
+                } else {
+                    passwordError.classList.remove('hidden');
+                }
+            });
+        }
+        
+        // --- FUNCIONES DE HISTORIAL ---
+        function initializeHistory() {
+            const storedHistory = localStorage.getItem(HISTORY_KEY);
+            history = storedHistory ? JSON.parse(storedHistory) : [];
+            renderHistory();
+        }
+
+        function saveHistory() {
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+            renderHistory();
+        }
+        
+        function addToHistory(record) {
+            history.unshift(record); // Añade al principio para mostrar lo más reciente primero
+            saveHistory();
+        }
+
+        function renderHistory() {
+            const tableBody = document.getElementById('history-table-body');
+            const emptyState = document.getElementById('history-empty-state');
+            tableBody.innerHTML = '';
+
+            if (history.length === 0) {
+                emptyState.classList.remove('hidden');
+                document.getElementById('history-table-container').classList.add('hidden');
+                document.getElementById('download-history-pdf-btn').disabled = true;
+
+            } else {
+                emptyState.classList.add('hidden');
+                document.getElementById('history-table-container').classList.remove('hidden');
+                document.getElementById('download-history-pdf-btn').disabled = false;
+                history.forEach(record => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${record.type}</td>
+                        <td>${record.name}</td>
+                        <td>${record.details}</td>
+                        <td>${record.folio}</td>
+                        <td>${record.date}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
             }
-            synthesizer.triggerAttackRelease(['C6', 'E6', 'G6'], '4n');
+        }
+        
+        function clearHistory() {
+            if (confirm('¿Estás seguro de que quieres borrar todo el historial? Esta acción no se puede deshacer.')) {
+                history = [];
+                saveHistory();
+                alert('El historial ha sido borrado.');
+            }
         }
 
-        // Función para mostrar el SVG de Kirby
+        // --- FUNCIONES DE UTILIDAD ---
+        function playSound(notes, duration) {
+            if (Tone.context.state !== 'running') Tone.context.resume();
+            synthesizer.triggerAttackRelease(notes, duration);
+        }
+        function playClickSound() { playSound(['C5', 'G5'], '8n'); }
+        function playRewardSound() { playSound(['C6', 'E6', 'G6'], '4n'); }
+
         function showKirby() {
             kirbySvgContainer.classList.add('show');
-            setTimeout(() => {
-                kirbySvgContainer.classList.remove('show');
-            }, 2000);
+            setTimeout(() => kirbySvgContainer.classList.remove('show'), 2000);
         }
 
-        // Función para generar un folio único
         function generateFolio() {
             const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-            return `${year}${month}${day}-${hours}${minutes}${seconds}-${random}`;
+            const parts = {
+                year: now.getFullYear(),
+                month: String(now.getMonth() + 1).padStart(2, '0'),
+                day: String(now.getDate()).padStart(2, '0'),
+                h: String(now.getHours()).padStart(2, '0'),
+                m: String(now.getMinutes()).padStart(2, '0'),
+                s: String(now.getSeconds()).padStart(2, '0'),
+                ms: String(Math.floor(Math.random() * 1000)).padStart(3, '0')
+            };
+            return `${parts.year}${parts.month}${parts.day}-${parts.h}${parts.m}${parts.s}-${parts.ms}`;
         }
 
-        // Función para cambiar de pestaña
         function switchTab(tabId) {
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-            });
-            tabButtons.forEach(btn => {
-                btn.classList.remove('active');
-            });
-
+            tabContents.forEach(content => content.classList.remove('active'));
+            tabButtons.forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
         }
 
-        // Asignación de Event Listeners para las pestañas
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                playClickSound();
-                switchTab(button.dataset.tab);
-            });
-        });
-
-        // Función para mostrar el modal de contraseña
         function showPasswordModal(callback) {
             currentCallback = callback;
             passwordModal.style.display = 'block';
             passwordInput.value = '';
             passwordError.classList.add('hidden');
+            passwordInput.focus();
         }
 
-        // Función para ocultar el modal
         function hidePasswordModal() {
             passwordModal.style.display = 'none';
         }
 
-        // Función para generar y descargar un PDF con el pie de página
         async function generatePDF(elementId, filename) {
             const element = document.getElementById(elementId);
             const originalStyle = element.style.border;
-            element.style.border = 'none'; // Temporalmente quitar el borde
-            
-            // Añadir el footer al elemento para la captura del PDF
+            element.style.border = 'none';
             const footer = document.getElementById('main-footer').cloneNode(true);
             element.appendChild(footer);
 
@@ -596,139 +432,162 @@
             const margin = 10;
             const contentWidth = 210 - 2 * margin;
 
-            html2canvas(element).then(canvas => {
+            try {
+                const canvas = await html2canvas(element, { scale: 2 });
                 const imgData = canvas.toDataURL('image/png');
-                const imgWidth = canvas.width;
-                const imgHeight = canvas.height;
-                const ratio = contentWidth / imgWidth;
-                const newHeight = imgHeight * ratio;
-
+                const ratio = contentWidth / canvas.width;
+                const newHeight = canvas.height * ratio;
                 doc.addImage(imgData, 'PNG', margin, margin, contentWidth, newHeight);
                 doc.save(filename);
-            }).finally(() => {
-                // Eliminar el footer temporal después de generar el PDF
+            } catch (error) {
+                console.error("Error generating PDF:", error);
+            } finally {
                 element.removeChild(footer);
-                element.style.border = originalStyle; // Restaurar el estilo original
+                element.style.border = originalStyle;
+            }
+        }
+        
+        async function generateHistoryPDF() {
+            if (history.length === 0) {
+                alert("No hay historial para generar un reporte.");
+                return;
+            }
+
+            const reportContainer = document.createElement('div');
+            reportContainer.id = 'pdf-report-container';
+            reportContainer.style.position = 'absolute';
+            reportContainer.style.left = '-9999px';
+            reportContainer.style.width = '1000px';
+            reportContainer.style.padding = '20px';
+            reportContainer.style.backgroundColor = 'white';
+            
+            const reportDate = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            let tableHTML = `<h2 style="text-align: center; color: #6b21a8; font-size: 24px;">Historial de Recompensas DreamLAB</h2>`;
+            tableHTML += `<p style="text-align: center; color: #555; font-size: 16px;">Fecha del Reporte: ${reportDate}</p>`;
+            tableHTML += `<table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-family: 'Poppins', sans-serif;">
+                            <thead>
+                                <tr style="background-color: #faf5ff;">
+                                    <th style="padding: 10px; border: 1px solid #e5e7eb; text-align: left; color: #6b21a8;">Tipo</th>
+                                    <th style="padding: 10px; border: 1px solid #e5e7eb; text-align: left; color: #6b21a8;">Alumno(s)</th>
+                                    <th style="padding: 10px; border: 1px solid #e5e7eb; text-align: left; color: #6b21a8;">Detalles</th>
+                                    <th style="padding: 10px; border: 1px solid #e5e7eb; text-align: left; color: #6b21a8;">Folio</th>
+                                    <th style="padding: 10px; border: 1px solid #e5e7eb; text-align: left; color: #6b21a8;">Fecha</th>
+                                </tr>
+                            </thead><tbody>`;
+
+            history.forEach(record => {
+                tableHTML += `<tr>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">${record.type}</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">${record.name}</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">${record.details}</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">${record.folio}</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">${record.date}</td>
+                              </tr>`;
+            });
+            tableHTML += '</tbody></table>';
+
+            reportContainer.innerHTML = tableHTML;
+            document.body.appendChild(reportContainer);
+
+            await generatePDF('pdf-report-container', `Reporte_Historial_DreamLAB_${reportDate.replace(/\s/g, '_')}.pdf`);
+
+            document.body.removeChild(reportContainer);
+        }
+
+        function copyToClipboard(text, feedbackId) {
+            navigator.clipboard.writeText(text).then(() => {
+                const feedbackEl = document.getElementById(feedbackId);
+                feedbackEl.textContent = '¡Contenido copiado! Ahora puedes pegarlo en un correo.';
+                feedbackEl.classList.add('show');
+                setTimeout(() => feedbackEl.classList.remove('show'), 5000);
+            }).catch(err => {
+                console.error('Error al copiar:', err);
             });
         }
         
-        // Función para abrir el cliente de correo y mostrar feedback
-        function openEmailClient(emailInputId, subject, body, feedbackId) {
-            const email = document.getElementById(emailInputId).value;
-            if (email) {
-                const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                window.location.href = mailtoLink;
-                const feedbackEl = document.getElementById(feedbackId);
-                feedbackEl.textContent = 'Se ha intentado abrir tu cliente de correo. Si no aparece, por favor revisa tu configuración.';
-                feedbackEl.classList.add('show');
-                setTimeout(() => feedbackEl.classList.remove('show'), 5000);
-            } else {
-                const feedbackEl = document.getElementById(feedbackId);
-                feedbackEl.textContent = 'Por favor, ingresa un correo para enviar.';
-                feedbackEl.classList.add('show');
-                setTimeout(() => feedbackEl.classList.remove('show'), 3000);
-            }
+        function validateFields(...fields) {
+            return fields.every(field => field && field.trim() !== '');
         }
 
-        // Función para generar el ticket de Estrellas de Crédito
+        // --- FUNCIONES DE GENERACIÓN ---
         function generateTicket() {
             const amount = document.getElementById('ec-amount').value;
             const name = document.getElementById('student-name-ec').value;
             const activity = document.getElementById('activity-ec').value;
 
-            if (!amount || !name || !activity) {
-                const feedbackDiv = document.createElement('div');
-                feedbackDiv.textContent = 'Por favor, completa todos los campos para generar el ticket.';
-                feedbackDiv.className = 'text-center text-red-500 mt-4';
-                document.querySelector('#estrellas').appendChild(feedbackDiv);
-                setTimeout(() => feedbackDiv.remove(), 3000);
+            if (!validateFields(amount, name, activity)) {
+                alert('Por favor, completa todos los campos para generar el ticket.');
                 return;
             }
 
             const date = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
             const folio = generateFolio();
-            const randomMessage = congratulatoryMessages[Math.floor(Math.random() * congratulatoryMessages.length)];
             
             document.getElementById('ticket-ec-amount').textContent = amount;
             document.getElementById('ticket-student-name').textContent = name;
             document.getElementById('ticket-activity').textContent = activity;
             document.getElementById('ec-ticket-date').textContent = date;
-            document.getElementById('ticket-message').textContent = randomMessage;
+            document.getElementById('ticket-message').textContent = congratulatoryMessages[Math.floor(Math.random() * congratulatoryMessages.length)];
             document.getElementById('ticket-folio').textContent = folio;
 
             document.getElementById('ec-ticket-display').classList.add('active');
-            document.getElementById('badge-display').classList.remove('active');
-            document.getElementById('converter-display').classList.add('hidden');
-            leftoverTicketContainer.innerHTML = '';
             
+            addToHistory({ type: 'Ticket de Crédito', name, details: `${amount} Estrellas por: ${activity}`, folio, date });
+
             playRewardSound();
             showKirby();
 
-            // Event listener para descargar el PDF
-            document.getElementById('download-ec-pdf-btn').onclick = () => {
-                generatePDF('ec-ticket-display', `Ticket_Estrellas_${folio}.pdf`);
-            };
-
-            // Event listener para abrir el cliente de correo
+            document.getElementById('download-ec-pdf-btn').onclick = () => generatePDF('ec-ticket-display', `Ticket_Estrellas_${folio}.pdf`);
             document.getElementById('send-ec-email-btn').onclick = () => {
-                openEmailClient('ec-email-input', '¡Felicitaciones! Recibiste un Ticket de Estrellas de Crédito', `Hola ${name},\n\nAquí está tu ticket de Estrellas de Créditos.\n\nRecuerda adjuntar el PDF que se acaba de descargar. ¡Gracias por tu esfuerzo!`, 'ec-email-feedback');
+                const subject = `¡Felicitaciones! Recibiste un Ticket de Estrellas de Crédito`;
+                const body = `Hola ${name},\n\nAquí está tu ticket de Estrellas de Créditos.\n\nRecuerda adjuntar el PDF que se acaba de descargar. ¡Gracias por tu esfuerzo!`;
+                copyToClipboard(`Asunto: ${subject}\n\nCuerpo: ${body}`, 'ec-email-feedback');
             };
         }
 
-        // Función para generar la insignia
         function generateBadge() {
             const type = document.getElementById('badge-type').value;
             const name = document.getElementById('student-name-badge').value;
 
-            if (!type || !name) {
-                const feedbackDiv = document.createElement('div');
-                feedbackDiv.textContent = 'Por favor, selecciona un tesoro y completa el nombre.';
-                feedbackDiv.className = 'text-center text-red-500 mt-4';
-                document.querySelector('#insignias').appendChild(feedbackDiv);
-                setTimeout(() => feedbackDiv.remove(), 3000);
+            if (!validateFields(type, name)) {
+                alert('Por favor, selecciona un tesoro y completa el nombre.');
                 return;
             }
 
             const treasure = treasures[type];
             const date = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
             const folio = generateFolio();
-            const randomMessage = treasure.messages[Math.floor(Math.random() * treasure.messages.length)];
 
             document.getElementById('badge-symbol').textContent = treasure.symbol;
             document.getElementById('badge-title').textContent = treasure.title;
             document.getElementById('badge-student-name').textContent = name;
             document.getElementById('badge-ec-amount').textContent = treasure.ec;
             document.getElementById('badge-date').textContent = date;
-            document.getElementById('badge-message').textContent = randomMessage;
+            document.getElementById('badge-message').textContent = treasure.messages[Math.floor(Math.random() * treasure.messages.length)];
             document.getElementById('badge-folio').textContent = folio;
 
             document.getElementById('badge-display').classList.add('active');
-            document.getElementById('ec-ticket-display').classList.remove('active');
-            document.getElementById('converter-display').classList.add('hidden');
-            leftoverTicketContainer.innerHTML = '';
+            
+            addToHistory({ type: `Insignia: ${treasure.title}`, name, details: `Ganó ${treasure.ec}`, folio, date });
 
             playRewardSound();
             showKirby();
-
-            // Event listener para descargar el PDF
-            document.getElementById('download-badge-pdf-btn').onclick = () => {
-                generatePDF('badge-display', `Insignia_${type}_${folio}.pdf`);
-            };
-
-            // Event listener para abrir el cliente de correo
+            
+            document.getElementById('download-badge-pdf-btn').onclick = () => generatePDF('badge-display', `Insignia_${type}_${folio}.pdf`);
             document.getElementById('send-badge-email-btn').onclick = () => {
-                openEmailClient('badge-email-input', `¡Felicitaciones! Ganaste la insignia de ${treasure.title}`, `Hola ${name},\n\n¡Has ganado la insignia de ${treasure.title}!\n\nRecuerda adjuntar el PDF que se acaba de descargar. ¡Sigue así!`, 'badge-email-feedback');
+                const subject = `¡Felicitaciones! Ganaste la insignia de ${treasure.title}`;
+                const body = `Hola ${name},\n\n¡Has ganado la insignia de ${treasure.title}!\n\nRecuerda adjuntar el PDF que se acaba de descargar. ¡Sigue así!`;
+                copyToClipboard(`Asunto: ${subject}\n\nCuerpo: ${body}`, 'badge-email-feedback');
             };
         }
 
-        // Función para convertir estrellas
         function convertStars() {
             const name = document.getElementById('student-name-convert').value;
-            const starsInput = document.getElementById('stars-to-convert').value;
-            const stars = parseInt(starsInput, 10);
+            const stars = parseInt(document.getElementById('stars-to-convert').value, 10);
             const converterDisplay = document.getElementById('converter-display');
 
-            if (!name || isNaN(stars) || stars <= 0) {
+            if (!validateFields(name) || isNaN(stars) || stars <= 0) {
                 converterDisplay.textContent = 'Por favor, completa el nombre y una cantidad válida de estrellas.';
                 converterDisplay.classList.remove('hidden');
                 return;
@@ -739,35 +598,27 @@
             const date = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
             const folio = generateFolio();
 
-            converterDisplay.innerHTML = `
-                <div id="canje-reporte-pdf" class="space-y-2 p-2">
+            converterDisplay.innerHTML = `<div id="canje-reporte-pdf" class="space-y-2 p-2">
                     <p>Reporte de Canje para: <span class="font-bold text-pink-600">${name}</span></p>
                     <p>Fecha de conversión: ${date}</p>
                     <p>Has obtenido <span class="text-pink-600 font-bold">${convertedPoints}</span> Puntos Corazón ❤️.</p>
                     <p class="text-xs text-slate-400 mt-2">Folio de canje: ${folio}</p>
                 </div>
                 <div class="mt-4 space-y-2">
-                    <div>
-                        <label for="convert-email-input" class="block text-sm font-medium text-slate-700 text-left">Correo del alumno</label>
-                        <input type="email" id="convert-email-input" class="kirby-input" placeholder="ejemplo@correo.com">
-                    </div>
                     <div class="flex justify-center space-x-4">
                         <button id="download-convert-pdf-btn" class="btn btn-primary">Descargar PDF</button>
-                        <button id="send-convert-email-btn" class="btn btn-primary">Enviar por Correo</button>
+                        <button id="send-convert-email-btn" class="btn btn-primary">Guión para correo</button>
                     </div>
                     <div id="convert-email-feedback" class="email-feedback"></div>
-                </div>
-            `;
+                </div>`;
             converterDisplay.classList.remove('hidden');
             
-            document.getElementById('ec-ticket-display').classList.remove('active');
-            document.getElementById('badge-display').classList.remove('active');
+            addToHistory({ type: 'Canje a Puntos Corazón', name, details: `${stars} EC -> ${convertedPoints} PC`, folio, date });
 
+            leftoverTicketContainer.innerHTML = '';
             if (remainingStars > 0) {
                 const leftoverFolio = generateFolio();
-                
-                leftoverTicketContainer.innerHTML = `
-                    <div class="kirby-card ticket-bg mt-4">
+                leftoverTicketContainer.innerHTML = `<div class="kirby-card ticket-bg mt-4">
                         <div class="text-center" id="estrellas-sobrantes-pdf">
                             <div class="star-icon">⭐</div>
                             <h3 class="text-2xl font-bold text-slate-800 mt-2 mb-1">¡Ticket de Estrellas Sobrantes!</h3>
@@ -775,69 +626,37 @@
                             <p class="text-xl font-semibold text-slate-700">Alumno(s): <span class="font-bold text-pink-600">${name}</span></p>
                             <p class="text-3xl font-bold text-pink-600">${remainingStars} Estrellas de Créditos</p>
                             <p class="text-xs text-slate-400 mt-2">Folio: ${leftoverFolio}</p>
-                            <div class="message-bubble mt-4">
-                                Tus estrellas sobrantes se han guardado en la bóveda para tu siguiente canje.
-                            </div>
+                            <div class="message-bubble mt-4">Tus estrellas sobrantes se han guardado en la bóveda para tu siguiente canje.</div>
                         </div>
                         <div class="mt-4 space-y-2">
-                            <div>
-                                <label for="leftover-email-input" class="block text-sm font-medium text-slate-700 text-left">Correo del alumno</label>
-                                <input type="email" id="leftover-email-input" class="kirby-input" placeholder="ejemplo@correo.com">
-                            </div>
                             <div class="flex justify-center space-x-4">
                                 <button id="download-leftover-pdf-btn" class="btn btn-primary">Descargar PDF</button>
-                                <button id="send-leftover-email-btn" class="btn btn-primary">Enviar por Correo</button>
+                                <button id="send-leftover-email-btn" class="btn btn-primary">Guión para correo</button>
                             </div>
                             <div id="leftover-email-feedback" class="email-feedback"></div>
                         </div>
-                    </div>
-                `;
-
-                // Event listener para descargar PDF de estrellas sobrantes
-                document.getElementById('download-leftover-pdf-btn').onclick = () => {
-                    generatePDF('estrellas-sobrantes-pdf', `Ticket_Sobrantes_${leftoverFolio}.pdf`);
-                };
-
-                // Event listener para enviar por correo de estrellas sobrantes
+                    </div>`;
+                
+                addToHistory({ type: 'Ticket Sobrantes', name, details: `${remainingStars} Estrellas restantes`, folio: leftoverFolio, date });
+                
+                document.getElementById('download-leftover-pdf-btn').onclick = () => generatePDF('estrellas-sobrantes-pdf', `Ticket_Sobrantes_${leftoverFolio}.pdf`);
                 document.getElementById('send-leftover-email-btn').onclick = () => {
-                    openEmailClient('leftover-email-input', '¡Tus estrellas sobrantes ya están listas!', `Hola ${name},\n\nAquí está tu ticket con las estrellas que te sobraron de tu canje. Puedes guardarlo para tu próxima conversión.\n\nRecuerda adjuntar el PDF que se acaba de descargar.`, 'leftover-email-feedback');
+                    const subject = '¡Tus estrellas sobrantes ya están listas!';
+                    const body = `Hola ${name},\n\nAquí está tu ticket con las estrellas que te sobraron de tu canje. Puedes guardarlo para tu próxima conversión.\n\nRecuerda adjuntar el PDF que se acaba de descargar.`;
+                    copyToClipboard(`Asunto: ${subject}\n\nCuerpo: ${body}`, 'leftover-email-feedback');
                 };
-            } else {
-                leftoverTicketContainer.innerHTML = '';
             }
 
             playRewardSound();
             showKirby();
             
-            // Event listener para descargar PDF del reporte
-            document.getElementById('download-convert-pdf-btn').onclick = () => {
-                generatePDF('canje-reporte-pdf', `Reporte_Canje_${folio}.pdf`);
-            };
-
-            // Event listener para enviar por correo del reporte
+            document.getElementById('download-convert-pdf-btn').onclick = () => generatePDF('canje-reporte-pdf', `Reporte_Canje_${folio}.pdf`);
             document.getElementById('send-convert-email-btn').onclick = () => {
-                openEmailClient('convert-email-input', 'Reporte de Canje de Puntos Corazón', `Hola ${name},\n\nAquí está el reporte de tu canje de estrellas de crédito a puntos corazón.\n\nRecuerda adjuntar el PDF que se acaba de descargar.`, 'convert-email-feedback');
+                const subject = 'Reporte de Canje de Puntos Corazón';
+                const body = `Hola ${name},\n\nAquí está el reporte de tu canje de estrellas de crédito a puntos corazón.\n\nRecuerda adjuntar el PDF que se acaba de descargar.`;
+                copyToClipboard(`Asunto: ${subject}\n\nCuerpo: ${body}`, 'convert-email-feedback');
             };
         }
-
-        // Asignación de Event Listeners a los botones de acción
-        ecButton.addEventListener('click', () => showPasswordModal(generateTicket));
-        badgeButton.addEventListener('click', () => showPasswordModal(generateBadge));
-        convertButton.addEventListener('click', () => showPasswordModal(convertStars));
-
-        submitPasswordBtn.addEventListener('click', () => {
-            playClickSound();
-            if (passwordInput.value === CORRECT_PASSWORD) {
-                hidePasswordModal();
-                if (currentCallback) {
-                    currentCallback();
-                }
-            } else {
-                passwordError.classList.remove('hidden');
-            }
-        });
-
     </script>
-
 </body>
 </html>
