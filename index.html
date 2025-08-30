@@ -231,6 +231,22 @@
         .kirby-svg-container.show {
             opacity: 1;
         }
+        .email-feedback {
+            display: none;
+            text-align: center;
+            color: #be185d;
+            font-weight: 600;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .email-feedback.show {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -300,6 +316,7 @@
                             <!-- Botón para enviar por correo -->
                             <button id="send-ec-email-btn" class="btn btn-primary">Enviar por Correo</button>
                         </div>
+                        <div id="ec-email-feedback" class="email-feedback"></div>
                     </div>
                 </div>
             </div>
@@ -353,6 +370,7 @@
                             <!-- Botón para enviar por correo -->
                             <button id="send-badge-email-btn" class="btn btn-primary">Enviar por Correo</button>
                         </div>
+                        <div id="badge-email-feedback" class="email-feedback"></div>
                     </div>
                 </div>
             </div>
@@ -408,7 +426,7 @@
         </div>
 
         <!-- Footer -->
-        <footer class="footer-stripe text-center text-slate-500 text-sm">
+        <footer id="main-footer" class="footer-stripe text-center text-slate-500 text-sm">
             <p>© 2025 | Adriana A. Barrios Rodríguez | Todos los derechos reservados.</p>
         </footer>
     </div>
@@ -563,12 +581,16 @@
             passwordModal.style.display = 'none';
         }
 
-        // Función para generar y descargar un PDF
+        // Función para generar y descargar un PDF con el pie de página
         async function generatePDF(elementId, filename) {
             const element = document.getElementById(elementId);
             const originalStyle = element.style.border;
             element.style.border = 'none'; // Temporalmente quitar el borde
             
+            // Añadir el footer al elemento para la captura del PDF
+            const footer = document.getElementById('main-footer').cloneNode(true);
+            element.appendChild(footer);
+
             window.jsPDF = window.jspdf.jsPDF;
             const doc = new jsPDF('p', 'mm', 'a4');
             const margin = 10;
@@ -583,15 +605,29 @@
 
                 doc.addImage(imgData, 'PNG', margin, margin, contentWidth, newHeight);
                 doc.save(filename);
+            }).finally(() => {
+                // Eliminar el footer temporal después de generar el PDF
+                element.removeChild(footer);
                 element.style.border = originalStyle; // Restaurar el estilo original
             });
         }
         
-        // Función para abrir el cliente de correo
-        function openEmailClient(emailInputId, subject, body) {
+        // Función para abrir el cliente de correo y mostrar feedback
+        function openEmailClient(emailInputId, subject, body, feedbackId) {
             const email = document.getElementById(emailInputId).value;
-            const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            window.location.href = mailtoLink;
+            if (email) {
+                const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.location.href = mailtoLink;
+                const feedbackEl = document.getElementById(feedbackId);
+                feedbackEl.textContent = 'Se ha intentado abrir tu cliente de correo. Si no aparece, por favor revisa tu configuración.';
+                feedbackEl.classList.add('show');
+                setTimeout(() => feedbackEl.classList.remove('show'), 5000);
+            } else {
+                const feedbackEl = document.getElementById(feedbackId);
+                feedbackEl.textContent = 'Por favor, ingresa un correo para enviar.';
+                feedbackEl.classList.add('show');
+                setTimeout(() => feedbackEl.classList.remove('show'), 3000);
+            }
         }
 
         // Función para generar el ticket de Estrellas de Crédito
@@ -635,7 +671,7 @@
 
             // Event listener para abrir el cliente de correo
             document.getElementById('send-ec-email-btn').onclick = () => {
-                openEmailClient('ec-email-input', '¡Felicitaciones! Recibiste un Ticket de Estrellas de Crédito', `Hola ${name},\n\nAquí está tu ticket de Estrellas de Créditos.\n\nRecuerda adjuntar el PDF que se acaba de descargar. ¡Gracias por tu esfuerzo!`);
+                openEmailClient('ec-email-input', '¡Felicitaciones! Recibiste un Ticket de Estrellas de Crédito', `Hola ${name},\n\nAquí está tu ticket de Estrellas de Créditos.\n\nRecuerda adjuntar el PDF que se acaba de descargar. ¡Gracias por tu esfuerzo!`, 'ec-email-feedback');
             };
         }
 
@@ -681,7 +717,7 @@
 
             // Event listener para abrir el cliente de correo
             document.getElementById('send-badge-email-btn').onclick = () => {
-                openEmailClient('badge-email-input', `¡Felicitaciones! Ganaste la insignia de ${treasure.title}`, `Hola ${name},\n\n¡Has ganado la insignia de ${treasure.title}!\n\nRecuerda adjuntar el PDF que se acaba de descargar. ¡Sigue así!`);
+                openEmailClient('badge-email-input', `¡Felicitaciones! Ganaste la insignia de ${treasure.title}`, `Hola ${name},\n\n¡Has ganado la insignia de ${treasure.title}!\n\nRecuerda adjuntar el PDF que se acaba de descargar. ¡Sigue así!`, 'badge-email-feedback');
             };
         }
 
@@ -707,7 +743,6 @@
                 <div id="canje-reporte-pdf" class="space-y-2 p-2">
                     <p>Reporte de Canje para: <span class="font-bold text-pink-600">${name}</span></p>
                     <p>Fecha de conversión: ${date}</p>
-                    <p>Convertiste <span class="text-pink-600 font-bold">${stars}</span> estrellas de crédito.</p>
                     <p>Has obtenido <span class="text-pink-600 font-bold">${convertedPoints}</span> Puntos Corazón ❤️.</p>
                     <p class="text-xs text-slate-400 mt-2">Folio de canje: ${folio}</p>
                 </div>
@@ -720,6 +755,7 @@
                         <button id="download-convert-pdf-btn" class="btn btn-primary">Descargar PDF</button>
                         <button id="send-convert-email-btn" class="btn btn-primary">Enviar por Correo</button>
                     </div>
+                    <div id="convert-email-feedback" class="email-feedback"></div>
                 </div>
             `;
             converterDisplay.classList.remove('hidden');
@@ -752,6 +788,7 @@
                                 <button id="download-leftover-pdf-btn" class="btn btn-primary">Descargar PDF</button>
                                 <button id="send-leftover-email-btn" class="btn btn-primary">Enviar por Correo</button>
                             </div>
+                            <div id="leftover-email-feedback" class="email-feedback"></div>
                         </div>
                     </div>
                 `;
@@ -763,7 +800,7 @@
 
                 // Event listener para enviar por correo de estrellas sobrantes
                 document.getElementById('send-leftover-email-btn').onclick = () => {
-                    openEmailClient('leftover-email-input', '¡Tus estrellas sobrantes ya están listas!', `Hola ${name},\n\nAquí está tu ticket con las estrellas que te sobraron de tu canje. Puedes guardarlo para tu próxima conversión.\n\nRecuerda adjuntar el PDF que se acaba de descargar.`);
+                    openEmailClient('leftover-email-input', '¡Tus estrellas sobrantes ya están listas!', `Hola ${name},\n\nAquí está tu ticket con las estrellas que te sobraron de tu canje. Puedes guardarlo para tu próxima conversión.\n\nRecuerda adjuntar el PDF que se acaba de descargar.`, 'leftover-email-feedback');
                 };
             } else {
                 leftoverTicketContainer.innerHTML = '';
@@ -779,7 +816,7 @@
 
             // Event listener para enviar por correo del reporte
             document.getElementById('send-convert-email-btn').onclick = () => {
-                openEmailClient('convert-email-input', 'Reporte de Canje de Puntos Corazón', `Hola ${name},\n\nAquí está el reporte de tu canje de estrellas de crédito a puntos corazón.\n\nRecuerda adjuntar el PDF que se acaba de descargar.`);
+                openEmailClient('convert-email-input', 'Reporte de Canje de Puntos Corazón', `Hola ${name},\n\nAquí está el reporte de tu canje de estrellas de crédito a puntos corazón.\n\nRecuerda adjuntar el PDF que se acaba de descargar.`, 'convert-email-feedback');
             };
         }
 
