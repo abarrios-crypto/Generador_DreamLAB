@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Recompensas DreamLAB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.7.58/build/Tone.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at top, #fff0f5 0%, #fce7f3 60%, #fbcfe8 100%);
+            color: #4a5568;
+            padding: 2rem;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"><path fill="gold" d="M12 2l2.4 7.2h7.6l-6 4.8l2.4 7.2l-6-4.8l-6 4.8l2.4-7.2l-6-4.8h7.6z"/></svg>'), auto;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .star-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .star-bg > div {
+            background-color: #ffd700;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            position: absolute;
+            opacity: 0.8;
+            animation: float 20s infinite ease-in-out;
+            box-shadow: 0 0 5px #ffd700, 0 0 10px #ffea00;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(50vw); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(-50vw); opacity: 0; }
+        }
+
+        .kirby-card {
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s ease-in-out;
+            border: 2px solid;
+            box-shadow: 0 8px 10px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        }
+        .ticket-bg {
+            background-color: #ffedd5;
+            border-color: #fdba74;
+            background-image: linear-gradient(135deg, transparent 10px, #ffedd5 10px), linear-gradient(45deg, transparent 10px, #ffedd5 10px);
+            background-size: 20px 20px;
+        }
+        .badge-bg {
+            background-color: #e0f2fe;
+            border-color: #93c5fd;
+            background-image: linear-gradient(135deg, transparent 50%, rgba(255, 255, 255, 0.1) 50%);
+            background-size: 10px 10px;
+        }
+        .kirby-input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            border: 1px solid #d1d5db;
+            background-color: #fff;
+            margin-top: 0.5rem;
+            transition: all 0.2s ease-in-out;
+        }
+        .kirby-input:focus {
+            outline: none;
+            border-color: #ec4899;
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.5);
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 0px #be185d;
+        }
+        .btn-primary {
+            background-color: #ec4899;
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0px #be185d;
+        }
+        .ticket-display {
+            display: none;
+            position: relative;
+        }
+        .ticket-display.active {
+            display: block;
+        }
+        .message-bubble {
+            background-color: #fff;
+            color: #be185d;
+            border-radius: 1.5rem;
+            padding: 1rem;
+            font-style: italic;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .star-icon {
+            font-size: 3rem;
+            display: inline-block;
+            filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.2));
+            animation: pulse 1.5s infinite;
+        }
+        .badge-icon {
+            font-size: 3rem;
+            display: inline-block;
+            filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.2));
+        }
+        .converter-bg {
+            background-color: #ffe4e6;
+            border-color: #fca5a5;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 0px #be185d;
+            background-color: #ec4899;
+            color: white;
+            border: none;
+            margin: 0.5rem;
+        }
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0px #be185d;
+        }
+        .tab-btn.active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0px #be185d;
+        }
+        .tab-content {
+            display: none;
+            position: relative;
+            top: -2px;
+            z-index: 1;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .title-outline {
+            text-shadow: 
+                -1.5px -1.5px 0 #fff,
+                1.5px -1.5px 0 #fff,
+                -1.5px 1.5px 0 #fff,
+                1.5px 1.5px 0 #fff;
+        }
+        .glowing-effect {
+            animation: glowing 2s infinite;
+        }
+        .ticket-bg.glowing-effect {
+            box-shadow: 0 0 10px #fdba74, 0 0 20px #fdba74, 0 8px 10px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        }
+        .badge-bg.glowing-effect {
+            box-shadow: 0 0 10px #93c5fd, 0 0 20px #93c5fd, 0 8px 10px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        }
+        .converter-bg.glowing-effect {
+            box-shadow: 0 0 10px #fca5a5, 0 0 20px #fca5a5, 0 8px 10px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        @keyframes glowing {
+            0% { box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+            50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+            100% { box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+        }
+        .footer-stripe {
+            background-color: #fce7f3;
+            border-top: 4px solid #f472b6;
+            padding: 1rem 0;
+            margin-top: 2rem;
+        }
+        .kirby-svg-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none;
+        }
+        .kirby-svg-container.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="star-bg"></div>
+
+    <div class="container">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-pink-500 title-outline">Generador de Recompensas DreamLAB</h1>
+            <p class="text-lg text-slate-600 mt-2">Crea tickets y insignias para tus Bio-Héroes</p>
+        </header>
+
+        <main>
+            <!-- Navigation for tabs -->
+            <nav class="flex justify-center mb-6">
+                <button class="tab-btn active" data-tab="estrellas">Estrellas de crédito</button>
+                <button class="tab-btn" data-tab="insignias">Insignias de Tesoros</button>
+                <button class="tab-btn" data-tab="convertidor">Convertidor EC ⭐ a PC ❤️</button>
+            </nav>
+
+            <!-- Tab content containers -->
+            <div id="estrellas" class="tab-content active">
+                <!-- Formulario de Estrellas de Crédito -->
+                <section class="kirby-card ticket-bg glowing-effect">
+                    <h2 class="text-2xl font-bold text-pink-600 mb-4 title-outline">Generar Ticket de Estrellas de Créditos ⭐</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="ec-amount" class="block text-sm font-medium text-slate-700">Cantidad de Estrellas de Créditos</label>
+                            <input type="number" id="ec-amount" class="kirby-input" placeholder="Ej: 50" min="1" required>
+                        </div>
+                        <div>
+                            <label for="student-name-ec" class="block text-sm font-medium text-slate-700">Nombre(s) del Alumno(s)</label>
+                            <input type="text" id="student-name-ec" class="kirby-input" placeholder="Ej: Juan Pérez" required>
+                        </div>
+                        <div>
+                            <label for="activity-ec" class="block text-sm font-medium text-slate-700">Actividad o Misión</label>
+                            <input type="text" id="activity-ec" class="kirby-input" placeholder="Ej: Presentación de un Tema" required>
+                        </div>
+                        <div class="flex justify-center md:justify-end">
+                            <button id="generate-ec-btn" class="btn btn-primary">Generar Ticket</button>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Visualización del Ticket de Estrellas de Crédito -->
+                <div id="ec-ticket-display" class="ticket-display kirby-card ticket-bg">
+                    <div class="text-center">
+                        <div class="star-icon">⭐</div>
+                        <h3 class="text-2xl font-bold text-slate-800 mt-2 mb-1">¡Ticket de Estrellas de Créditos!</h3>
+                        <p class="text-sm text-slate-500 mb-4" id="ec-ticket-date"></p>
+                    </div>
+                    <div class="text-center space-y-2">
+                        <p class="text-xl font-semibold text-slate-700">Alumno(s): <span class="font-bold text-pink-600" id="ticket-student-name"></span></p>
+                        <p class="text-lg text-slate-600">Por la actividad: <span class="font-semibold" id="ticket-activity"></span></p>
+                        <p class="text-3xl font-bold text-pink-600"><span id="ticket-ec-amount"></span> Estrellas de Créditos</p>
+                    </div>
+                    <div class="message-bubble" id="ticket-message"></div>
+                </div>
+            </div>
+
+            <div id="insignias" class="tab-content">
+                <!-- Formulario de Insignias -->
+                <section class="kirby-card badge-bg glowing-effect">
+                    <h2 class="text-2xl font-bold text-pink-600 mb-4 title-outline">Generar Insignia de Tesoro ✨</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="badge-type" class="block text-sm font-medium text-slate-700">Tipo de Tesoro</label>
+                            <select id="badge-type" class="kirby-input" required>
+                                <option value="">Selecciona un tesoro...</option>
+                                <option value="innovacion">Tesoro de Innovación ⚙️</option>
+                                <option value="iniciativa">Tesoro de Iniciativa y Compromiso Social 🤝</option>
+                                <option value="exploracion">Tesoro de Exploración 🔍</option>
+                                <option value="conexion">Tesoro de Conexión Humana 🔗</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="student-name-badge" class="block text-sm font-medium text-slate-700">Nombre(s) del Alumno(s)</label>
+                            <input type="text" id="student-name-badge" class="kirby-input" placeholder="Ej: Ana López y Pedro Gómez" required>
+                        </div>
+                        <div class="flex justify-center md:justify-end">
+                            <button id="generate-badge-btn" class="btn btn-primary">Generar Insignia</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visualización de la Insignia -->
+                <div id="badge-display" class="ticket-display kirby-card badge-bg">
+                    <div class="text-center">
+                        <div class="badge-icon" id="badge-symbol"></div>
+                        <h3 class="text-2xl font-bold text-slate-800 mt-2 mb-1" id="badge-title"></h3>
+                        <p class="text-sm text-slate-500 mb-4" id="badge-date"></p>
+                    </div>
+                    <div class="text-center space-y-2">
+                        <p class="text-xl font-semibold text-slate-700">Alumno(s): <span class="font-bold text-pink-600" id="badge-student-name"></span></p>
+                        <p class="text-lg text-slate-600">Has ganado: <span class="font-semibold text-pink-600" id="badge-ec-amount"></span></p>
+                    </div>
+                    <div class="message-bubble" id="badge-message"></div>
+                </div>
+            </div>
+
+            <div id="convertidor" class="tab-content">
+                <!-- Convertidor de Estrellas de Créditos a Puntos Corazón -->
+                <section class="kirby-card converter-bg glowing-effect">
+                    <h2 class="text-2xl font-bold text-pink-600 mb-4 title-outline">Convertir Estrellas a Puntos Corazón ❤️</h2>
+                    <p class="text-sm text-slate-600 mb-4">Equivalencia: 100 Estrellas de Créditos = 5 Puntos Corazón. La conversión no es parcial.</p>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="stars-to-convert" class="block text-sm font-medium text-slate-700">Estrellas a Convertir</label>
+                            <input type="number" id="stars-to-convert" class="kirby-input" placeholder="Ej: 250" min="1" required>
+                        </div>
+                        <div class="flex justify-center md:justify-end">
+                            <button id="convert-btn" class="btn btn-primary">Convertir</button>
+                        </div>
+                    </div>
+                    <div id="converter-display" class="message-bubble hidden"></div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Modal de Contraseña -->
+        <div id="password-modal" class="modal">
+            <div class="modal-content">
+                <h3 class="text-xl font-bold text-slate-800 mb-4">Ingresa la Contraseña</h3>
+                <input type="password" id="password-input" class="kirby-input text-center" placeholder="********" autocomplete="off" required>
+                <div id="password-error" class="text-red-500 text-sm mt-2 hidden">Contraseña incorrecta.</div>
+                <div class="mt-4">
+                    <button id="submit-password-btn" class="btn btn-primary">Aceptar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kirby SVG -->
+        <div id="kirby-svg-container" class="kirby-svg-container">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="40" fill="#E66A8E" stroke="#C45A79" stroke-width="4"/>
+                <circle cx="35" cy="40" r="5" fill="white"/>
+                <circle cx="65" cy="40" r="5" fill="white"/>
+                <circle cx="35" cy="40" r="2.5" fill="black"/>
+                <circle cx="65" cy="40" r="2.5" fill="black"/>
+                <path d="M40 70 C45 75, 55 75, 60 70" stroke="#C45A79" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="30" cy="65" r="7" fill="#F098AF" stroke="#C45A79" stroke-width="2"/>
+                <circle cx="70" cy="65" r="7" fill="#F098AF" stroke="#C45A79" stroke-width="2"/>
+            </svg>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer-stripe text-center text-slate-500 text-sm">
+            <p>© 2025 | Adriana A. Barrios Rodríguez | Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Data para el generador
+        const treasures = {
+            innovacion: {
+                symbol: '⚙️',
+                title: 'Tesoro de Innovación',
+                ec: '50 Estrellas de Créditos',
+                messages: [
+                    "Tu ingenio ha forjado un nuevo sendero en el camino del bio-héroe. ¡Adelante!",
+                    "¡Innovación es la clave! Cada nueva idea te acerca a la victoria, bio-héroe.",
+                    "El mundo necesita nuevas soluciones. Tu creatividad es un tesoro incalculable."
+                ]
+            },
+            iniciativa: {
+                symbol: '🤝',
+                title: 'Tesoro de Iniciativa y Compromiso Social',
+                ec: '40 Estrellas de Créditos',
+                messages: [
+                    "Cada bio-héroe construye su leyenda ayudando a su comunidad. ¡Qué gran paso!",
+                    "Has tomado la iniciativa para hacer del mundo un lugar mejor. ¡Felicidades, bio-héroe!",
+                    "Tu compromiso inspira a todos a tu alrededor. La verdadera fuerza está en la acción."
+                ]
+            },
+            exploracion: {
+                symbol: '🔍',
+                title: 'Tesoro de Exploración',
+                ec: '25 Estrellas de Créditos',
+                messages: [
+                    "El verdadero bio-héroe explora lo desconocido. ¡Tu valentía abre nuevos mundos!",
+                    "Has descubierto un tesoro de conocimiento. ¡Sigue explorando, valiente bio-héroe!",
+                    "Tu curiosidad te ha llevado a lugares inexplorados. ¡El universo del saber te espera!"
+                ]
+            },
+            conexion: {
+                symbol: '🔗',
+                title: 'Tesoro de Conexión Humana',
+                ec: '75 Estrellas de Créditos',
+                messages: [
+                    "El poder más grande reside en la conexión con otros. ¡Juntos, el camino del bio-héroe es invencible!",
+                    "Has tejido un lazo irrompible. La amistad es el más grande de los tesoros.",
+                    "La colaboración es la clave para grandes victorias. ¡Gracias por unir a tu equipo!"
+                ]
+            }
+        };
+
+        const congratulatoryMessages = [
+            "¡Sigue así, Bio-Héroe! Tu esfuerzo es la clave para la victoria.",
+            "¡Increíble! Cada estrella te acerca más a la gloria. ¡Felicidades, bio-héroe!",
+            "El camino del bio-héroe está hecho de constancia. ¡Gran trabajo!",
+            "¡Tu valentía ha sido recompensada! Sigue luchando por el conocimiento."
+        ];
+
+        // Constantes del DOM
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const ecButton = document.getElementById('generate-ec-btn');
+        const badgeButton = document.getElementById('generate-badge-btn');
+        const convertButton = document.getElementById('convert-btn');
+        const passwordModal = document.getElementById('password-modal');
+        const passwordInput = document.getElementById('password-input');
+        const passwordError = document.getElementById('password-error');
+        const submitPasswordBtn = document.getElementById('submit-password-btn');
+        const kirbySvgContainer = document.getElementById('kirby-svg-container');
+
+        const CORRECT_PASSWORD = '100888';
+        let currentCallback = null;
+        let synthesizer = new Tone.PolySynth(Tone.Synth).toDestination();
+
+        // Inicializar estrellas de fondo
+        for (let i = 0; i < 30; i++) {
+            const star = document.createElement('div');
+            star.style.left = `${Math.random() * 100}vw`;
+            star.style.top = `${Math.random() * 100}vh`;
+            star.style.animationDelay = `${Math.random() * 20}s`;
+            star.style.animationDuration = `${10 + Math.random() * 20}s`;
+            document.querySelector('.star-bg').appendChild(star);
+        }
+
+        // Función para tocar un sonido de clic
+        function playClickSound() {
+            if (Tone.context.state !== 'running') {
+                Tone.context.resume();
+            }
+            synthesizer.triggerAttackRelease(['C5', 'G5'], '8n');
+        }
+
+        // Función para tocar un sonido de recompensa
+        function playRewardSound() {
+            if (Tone.context.state !== 'running') {
+                Tone.context.resume();
+            }
+            synthesizer.triggerAttackRelease(['C6', 'E6', 'G6'], '4n');
+        }
+
+        // Función para mostrar el SVG de Kirby
+        function showKirby() {
+            kirbySvgContainer.classList.add('show');
+            setTimeout(() => {
+                kirbySvgContainer.classList.remove('show');
+            }, 2000);
+        }
+
+        // Función para cambiar de pestaña
+        function switchTab(tabId) {
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        }
+
+        // Asignación de Event Listeners para las pestañas
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                playClickSound();
+                switchTab(button.dataset.tab);
+            });
+        });
+
+        // Función para mostrar el modal de contraseña
+        function showPasswordModal(callback) {
+            currentCallback = callback;
+            passwordModal.style.display = 'block';
+            passwordInput.value = '';
+            passwordError.classList.add('hidden');
+        }
+
+        // Función para ocultar el modal
+        function hidePasswordModal() {
+            passwordModal.style.display = 'none';
+        }
+
+        // Función para generar el ticket de Estrellas de Crédito
+        function generateTicket() {
+            const amount = document.getElementById('ec-amount').value;
+            const name = document.getElementById('student-name-ec').value;
+            const activity = document.getElementById('activity-ec').value;
+
+            if (!amount || !name || !activity) {
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.textContent = 'Por favor, completa todos los campos para generar el ticket.';
+                feedbackDiv.className = 'text-center text-red-500 mt-4';
+                document.querySelector('#estrellas').appendChild(feedbackDiv);
+                setTimeout(() => feedbackDiv.remove(), 3000);
+                return;
+            }
+
+            const date = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            const randomMessage = congratulatoryMessages[Math.floor(Math.random() * congratulatoryMessages.length)];
+
+            document.getElementById('ticket-ec-amount').textContent = amount;
+            document.getElementById('ticket-student-name').textContent = name;
+            document.getElementById('ticket-activity').textContent = activity;
+            document.getElementById('ec-ticket-date').textContent = date;
+            document.getElementById('ticket-message').textContent = randomMessage;
+
+            document.getElementById('ec-ticket-display').classList.add('active');
+            document.getElementById('badge-display').classList.remove('active');
+            document.getElementById('converter-display').classList.add('hidden');
+            
+            playRewardSound();
+            showKirby();
+        }
+
+        // Función para generar la insignia
+        function generateBadge() {
+            const type = document.getElementById('badge-type').value;
+            const name = document.getElementById('student-name-badge').value;
+
+            if (!type || !name) {
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.textContent = 'Por favor, selecciona un tesoro y completa el nombre.';
+                feedbackDiv.className = 'text-center text-red-500 mt-4';
+                document.querySelector('#insignias').appendChild(feedbackDiv);
+                setTimeout(() => feedbackDiv.remove(), 3000);
+                return;
+            }
+
+            const treasure = treasures[type];
+            const date = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            const randomMessage = treasure.messages[Math.floor(Math.random() * treasure.messages.length)];
+
+            document.getElementById('badge-symbol').textContent = treasure.symbol;
+            document.getElementById('badge-title').textContent = treasure.title;
+            document.getElementById('badge-student-name').textContent = name;
+            document.getElementById('badge-ec-amount').textContent = treasure.ec;
+            document.getElementById('badge-date').textContent = date;
+            document.getElementById('badge-message').textContent = randomMessage;
+
+            document.getElementById('badge-display').classList.add('active');
+            document.getElementById('ec-ticket-display').classList.remove('active');
+            document.getElementById('converter-display').classList.add('hidden');
+
+            playRewardSound();
+            showKirby();
+        }
+
+        // Función para convertir estrellas
+        function convertStars() {
+            const starsInput = document.getElementById('stars-to-convert').value;
+            const stars = parseInt(starsInput, 10);
+            const converterDisplay = document.getElementById('converter-display');
+
+            if (isNaN(stars) || stars <= 0) {
+                converterDisplay.textContent = 'Por favor, ingresa una cantidad válida de estrellas.';
+                converterDisplay.classList.remove('hidden');
+                return;
+            }
+
+            const convertedPoints = Math.floor(stars / 100) * 5;
+            const remainingStars = stars % 100;
+
+            converterDisplay.innerHTML = `
+                <p>Convertiste ${stars} estrellas de crédito.</p>
+                <p>Has obtenido <span class="text-pink-600 font-bold">${convertedPoints}</span> Puntos Corazón ❤️.</p>
+                <p>Quedan <span class="text-pink-600 font-bold">${remainingStars}</span> estrellas en la bóveda.</p>
+            `;
+            converterDisplay.classList.remove('hidden');
+            document.getElementById('ec-ticket-display').classList.remove('active');
+            document.getElementById('badge-display').classList.remove('active');
+
+            playRewardSound();
+            showKirby();
+        }
+
+        // Asignación de Event Listeners a los botones de acción
+        ecButton.addEventListener('click', () => showPasswordModal(generateTicket));
+        badgeButton.addEventListener('click', () => showPasswordModal(generateBadge));
+        convertButton.addEventListener('click', () => showPasswordModal(convertStars));
+
+        submitPasswordBtn.addEventListener('click', () => {
+            playClickSound();
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                hidePasswordModal();
+                if (currentCallback) {
+                    currentCallback();
+                }
+            } else {
+                passwordError.classList.remove('hidden');
+            }
+        });
+
+    </script>
+
+</body>
+</html>
