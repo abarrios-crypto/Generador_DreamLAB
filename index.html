@@ -6,6 +6,8 @@
     <title>Generador de Recompensas DreamLAB</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/tone@14.7.58/build/Tone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -165,7 +167,7 @@
         }
         .tab-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 0px #be185d;
+            box-shadow: 6px 0px #be185d;
         }
         .tab-btn.active {
             transform: translateY(2px);
@@ -284,8 +286,21 @@
                         <p class="text-xl font-semibold text-slate-700">Alumno(s): <span class="font-bold text-pink-600" id="ticket-student-name"></span></p>
                         <p class="text-lg text-slate-600">Por la actividad: <span class="font-semibold" id="ticket-activity"></span></p>
                         <p class="text-3xl font-bold text-pink-600"><span id="ticket-ec-amount"></span> Estrellas de Créditos</p>
+                        <p class="text-xs text-slate-400 mt-2">Folio: <span id="ticket-folio"></span></p>
                     </div>
                     <div class="message-bubble" id="ticket-message"></div>
+                    <div class="mt-4 space-y-2">
+                        <div>
+                            <label for="ec-email-input" class="block text-sm font-medium text-slate-700 text-left">Correo del alumno</label>
+                            <input type="email" id="ec-email-input" class="kirby-input" placeholder="ejemplo@correo.com">
+                        </div>
+                        <div class="flex justify-center space-x-4">
+                            <!-- Botón para descargar -->
+                            <button id="download-ec-pdf-btn" class="btn btn-primary">Descargar PDF</button>
+                            <!-- Botón para enviar por correo -->
+                            <button id="send-ec-email-btn" class="btn btn-primary">Enviar por Correo</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -324,8 +339,21 @@
                     <div class="text-center space-y-2">
                         <p class="text-xl font-semibold text-slate-700">Alumno(s): <span class="font-bold text-pink-600" id="badge-student-name"></span></p>
                         <p class="text-lg text-slate-600">Has ganado: <span class="font-semibold text-pink-600" id="badge-ec-amount"></span></p>
+                        <p class="text-xs text-slate-400 mt-2">Folio: <span id="badge-folio"></span></p>
                     </div>
                     <div class="message-bubble" id="badge-message"></div>
+                    <div class="mt-4 space-y-2">
+                        <div>
+                            <label for="badge-email-input" class="block text-sm font-medium text-slate-700 text-left">Correo del alumno</label>
+                            <input type="email" id="badge-email-input" class="kirby-input" placeholder="ejemplo@correo.com">
+                        </div>
+                        <div class="flex justify-center space-x-4">
+                             <!-- Botón para descargar -->
+                            <button id="download-badge-pdf-btn" class="btn btn-primary">Descargar PDF</button>
+                            <!-- Botón para enviar por correo -->
+                            <button id="send-badge-email-btn" class="btn btn-primary">Enviar por Correo</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -336,6 +364,10 @@
                     <p class="text-sm text-slate-600 mb-4">Equivalencia: 100 Estrellas de Créditos = 5 Puntos Corazón. La conversión no es parcial.</p>
                     <div class="space-y-4">
                         <div>
+                            <label for="student-name-convert" class="block text-sm font-medium text-slate-700">Nombre(s) del Alumno(s)</label>
+                            <input type="text" id="student-name-convert" class="kirby-input" placeholder="Ej: Pedro Gómez" required>
+                        </div>
+                        <div>
                             <label for="stars-to-convert" class="block text-sm font-medium text-slate-700">Estrellas a Convertir</label>
                             <input type="number" id="stars-to-convert" class="kirby-input" placeholder="Ej: 250" min="1" required>
                         </div>
@@ -344,6 +376,7 @@
                         </div>
                     </div>
                     <div id="converter-display" class="message-bubble hidden"></div>
+                    <div id="leftover-ticket-container" class="mt-4"></div>
                 </section>
             </div>
         </main>
@@ -419,7 +452,7 @@
                 ec: '75 Estrellas de Créditos',
                 messages: [
                     "El poder más grande reside en la conexión con otros. ¡Juntos, el camino del bio-héroe es invencible!",
-                    "Has tejido un lazo irrompible. La amistad es el más grande de los tesoros.",
+                    "Has tejido un lazo inquebrantable. La amistad es el más grande de los tesoros.",
                     "La colaboración es la clave para grandes victorias. ¡Gracias por unir a tu equipo!"
                 ]
             }
@@ -443,6 +476,7 @@
         const passwordError = document.getElementById('password-error');
         const submitPasswordBtn = document.getElementById('submit-password-btn');
         const kirbySvgContainer = document.getElementById('kirby-svg-container');
+        const leftoverTicketContainer = document.getElementById('leftover-ticket-container');
 
         const CORRECT_PASSWORD = '100888';
         let currentCallback = null;
@@ -482,6 +516,19 @@
             }, 2000);
         }
 
+        // Función para generar un folio único
+        function generateFolio() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            return `${year}${month}${day}-${hours}${minutes}${seconds}-${random}`;
+        }
+
         // Función para cambiar de pestaña
         function switchTab(tabId) {
             tabContents.forEach(content => {
@@ -516,6 +563,37 @@
             passwordModal.style.display = 'none';
         }
 
+        // Función para generar y descargar un PDF
+        async function generatePDF(elementId, filename) {
+            const element = document.getElementById(elementId);
+            const originalStyle = element.style.border;
+            element.style.border = 'none'; // Temporalmente quitar el borde
+            
+            window.jsPDF = window.jspdf.jsPDF;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const margin = 10;
+            const contentWidth = 210 - 2 * margin;
+
+            html2canvas(element).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = canvas.width;
+                const imgHeight = canvas.height;
+                const ratio = contentWidth / imgWidth;
+                const newHeight = imgHeight * ratio;
+
+                doc.addImage(imgData, 'PNG', margin, margin, contentWidth, newHeight);
+                doc.save(filename);
+                element.style.border = originalStyle; // Restaurar el estilo original
+            });
+        }
+        
+        // Función para abrir el cliente de correo
+        function openEmailClient(emailInputId, subject, body) {
+            const email = document.getElementById(emailInputId).value;
+            const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.location.href = mailtoLink;
+        }
+
         // Función para generar el ticket de Estrellas de Crédito
         function generateTicket() {
             const amount = document.getElementById('ec-amount').value;
@@ -532,20 +610,33 @@
             }
 
             const date = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            const folio = generateFolio();
             const randomMessage = congratulatoryMessages[Math.floor(Math.random() * congratulatoryMessages.length)];
-
+            
             document.getElementById('ticket-ec-amount').textContent = amount;
             document.getElementById('ticket-student-name').textContent = name;
             document.getElementById('ticket-activity').textContent = activity;
             document.getElementById('ec-ticket-date').textContent = date;
             document.getElementById('ticket-message').textContent = randomMessage;
+            document.getElementById('ticket-folio').textContent = folio;
 
             document.getElementById('ec-ticket-display').classList.add('active');
             document.getElementById('badge-display').classList.remove('active');
             document.getElementById('converter-display').classList.add('hidden');
+            leftoverTicketContainer.innerHTML = '';
             
             playRewardSound();
             showKirby();
+
+            // Event listener para descargar el PDF
+            document.getElementById('download-ec-pdf-btn').onclick = () => {
+                generatePDF('ec-ticket-display', `Ticket_Estrellas_${folio}.pdf`);
+            };
+
+            // Event listener para abrir el cliente de correo
+            document.getElementById('send-ec-email-btn').onclick = () => {
+                openEmailClient('ec-email-input', '¡Felicitaciones! Recibiste un Ticket de Estrellas de Crédito', `Hola ${name},\n\nAquí está tu ticket de Estrellas de Créditos.\n\nRecuerda adjuntar el PDF que se acaba de descargar. ¡Gracias por tu esfuerzo!`);
+            };
         }
 
         // Función para generar la insignia
@@ -564,6 +655,7 @@
 
             const treasure = treasures[type];
             const date = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            const folio = generateFolio();
             const randomMessage = treasure.messages[Math.floor(Math.random() * treasure.messages.length)];
 
             document.getElementById('badge-symbol').textContent = treasure.symbol;
@@ -572,41 +664,123 @@
             document.getElementById('badge-ec-amount').textContent = treasure.ec;
             document.getElementById('badge-date').textContent = date;
             document.getElementById('badge-message').textContent = randomMessage;
+            document.getElementById('badge-folio').textContent = folio;
 
             document.getElementById('badge-display').classList.add('active');
             document.getElementById('ec-ticket-display').classList.remove('active');
             document.getElementById('converter-display').classList.add('hidden');
+            leftoverTicketContainer.innerHTML = '';
 
             playRewardSound();
             showKirby();
+
+            // Event listener para descargar el PDF
+            document.getElementById('download-badge-pdf-btn').onclick = () => {
+                generatePDF('badge-display', `Insignia_${type}_${folio}.pdf`);
+            };
+
+            // Event listener para abrir el cliente de correo
+            document.getElementById('send-badge-email-btn').onclick = () => {
+                openEmailClient('badge-email-input', `¡Felicitaciones! Ganaste la insignia de ${treasure.title}`, `Hola ${name},\n\n¡Has ganado la insignia de ${treasure.title}!\n\nRecuerda adjuntar el PDF que se acaba de descargar. ¡Sigue así!`);
+            };
         }
 
         // Función para convertir estrellas
         function convertStars() {
+            const name = document.getElementById('student-name-convert').value;
             const starsInput = document.getElementById('stars-to-convert').value;
             const stars = parseInt(starsInput, 10);
             const converterDisplay = document.getElementById('converter-display');
 
-            if (isNaN(stars) || stars <= 0) {
-                converterDisplay.textContent = 'Por favor, ingresa una cantidad válida de estrellas.';
+            if (!name || isNaN(stars) || stars <= 0) {
+                converterDisplay.textContent = 'Por favor, completa el nombre y una cantidad válida de estrellas.';
                 converterDisplay.classList.remove('hidden');
                 return;
             }
 
             const convertedPoints = Math.floor(stars / 100) * 5;
             const remainingStars = stars % 100;
+            const date = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            const folio = generateFolio();
 
             converterDisplay.innerHTML = `
-                <p>Convertiste ${stars} estrellas de crédito.</p>
-                <p>Has obtenido <span class="text-pink-600 font-bold">${convertedPoints}</span> Puntos Corazón ❤️.</p>
-                <p>Quedan <span class="text-pink-600 font-bold">${remainingStars}</span> estrellas en la bóveda.</p>
+                <div id="canje-reporte-pdf" class="space-y-2 p-2">
+                    <p>Reporte de Canje para: <span class="font-bold text-pink-600">${name}</span></p>
+                    <p>Fecha de conversión: ${date}</p>
+                    <p>Convertiste <span class="text-pink-600 font-bold">${stars}</span> estrellas de crédito.</p>
+                    <p>Has obtenido <span class="text-pink-600 font-bold">${convertedPoints}</span> Puntos Corazón ❤️.</p>
+                    <p class="text-xs text-slate-400 mt-2">Folio de canje: ${folio}</p>
+                </div>
+                <div class="mt-4 space-y-2">
+                    <div>
+                        <label for="convert-email-input" class="block text-sm font-medium text-slate-700 text-left">Correo del alumno</label>
+                        <input type="email" id="convert-email-input" class="kirby-input" placeholder="ejemplo@correo.com">
+                    </div>
+                    <div class="flex justify-center space-x-4">
+                        <button id="download-convert-pdf-btn" class="btn btn-primary">Descargar PDF</button>
+                        <button id="send-convert-email-btn" class="btn btn-primary">Enviar por Correo</button>
+                    </div>
+                </div>
             `;
             converterDisplay.classList.remove('hidden');
+            
             document.getElementById('ec-ticket-display').classList.remove('active');
             document.getElementById('badge-display').classList.remove('active');
 
+            if (remainingStars > 0) {
+                const leftoverFolio = generateFolio();
+                
+                leftoverTicketContainer.innerHTML = `
+                    <div class="kirby-card ticket-bg mt-4">
+                        <div class="text-center" id="estrellas-sobrantes-pdf">
+                            <div class="star-icon">⭐</div>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-2 mb-1">¡Ticket de Estrellas Sobrantes!</h3>
+                            <p class="text-sm text-slate-500 mb-4">Fecha: ${date}</p>
+                            <p class="text-xl font-semibold text-slate-700">Alumno(s): <span class="font-bold text-pink-600">${name}</span></p>
+                            <p class="text-3xl font-bold text-pink-600">${remainingStars} Estrellas de Créditos</p>
+                            <p class="text-xs text-slate-400 mt-2">Folio: ${leftoverFolio}</p>
+                            <div class="message-bubble mt-4">
+                                Tus estrellas sobrantes se han guardado en la bóveda para tu siguiente canje.
+                            </div>
+                        </div>
+                        <div class="mt-4 space-y-2">
+                            <div>
+                                <label for="leftover-email-input" class="block text-sm font-medium text-slate-700 text-left">Correo del alumno</label>
+                                <input type="email" id="leftover-email-input" class="kirby-input" placeholder="ejemplo@correo.com">
+                            </div>
+                            <div class="flex justify-center space-x-4">
+                                <button id="download-leftover-pdf-btn" class="btn btn-primary">Descargar PDF</button>
+                                <button id="send-leftover-email-btn" class="btn btn-primary">Enviar por Correo</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Event listener para descargar PDF de estrellas sobrantes
+                document.getElementById('download-leftover-pdf-btn').onclick = () => {
+                    generatePDF('estrellas-sobrantes-pdf', `Ticket_Sobrantes_${leftoverFolio}.pdf`);
+                };
+
+                // Event listener para enviar por correo de estrellas sobrantes
+                document.getElementById('send-leftover-email-btn').onclick = () => {
+                    openEmailClient('leftover-email-input', '¡Tus estrellas sobrantes ya están listas!', `Hola ${name},\n\nAquí está tu ticket con las estrellas que te sobraron de tu canje. Puedes guardarlo para tu próxima conversión.\n\nRecuerda adjuntar el PDF que se acaba de descargar.`);
+                };
+            } else {
+                leftoverTicketContainer.innerHTML = '';
+            }
+
             playRewardSound();
             showKirby();
+            
+            // Event listener para descargar PDF del reporte
+            document.getElementById('download-convert-pdf-btn').onclick = () => {
+                generatePDF('canje-reporte-pdf', `Reporte_Canje_${folio}.pdf`);
+            };
+
+            // Event listener para enviar por correo del reporte
+            document.getElementById('send-convert-email-btn').onclick = () => {
+                openEmailClient('convert-email-input', 'Reporte de Canje de Puntos Corazón', `Hola ${name},\n\nAquí está el reporte de tu canje de estrellas de crédito a puntos corazón.\n\nRecuerda adjuntar el PDF que se acaba de descargar.`);
+            };
         }
 
         // Asignación de Event Listeners a los botones de acción
